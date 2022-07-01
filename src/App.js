@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "axios";
 
 import "./App.css";
@@ -6,28 +6,28 @@ import "./App.css";
 function App() {
     const [data, setData] = useState({});
     const [location, setLocation] = useState('');
+    const [lat, setLat] = useState([]);
+    const [lon, setLon] = useState([]);
+    const [fetchUrl, setFetchUrl] = useState('');
+    const [weatherData, setWeatherData] = useState([]);
 
-    const url = `${process.env.REACT_APP_API_URL}/weather?q=${location},rs&units=metric&APPID=${process.env.REACT_APP_API_KEY}`;
-
-    const searchLocation = (event) => {
-
+    const fetchWithLocation = (event) => {
         event.preventDefault();
 
-        axios.get(url).then((response) => {
-            setData(response.data);
-            console.log(response.data);
-        });
-        setLocation('');
+        const locationUrl = `${REACT_APP_API_URL}/weather/q?=`;
+        
+        // axios.get()
     };
 
     return (
-        <form className="app" onSubmit={searchLocation}>
+        <form className="app" onSubmit={fetchWithLocation}>
             <input
                 type="text"
                 value={location}
                 onChange={(event) => setLocation(event.target.value)}
                 placeholder="Enter Location"
             />
+            <button>Geo Location</button>
             <div className="container">
                 <div className="top">
                     <div className="location">
