@@ -1,7 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 
 import "./App.css";
+import Button from "./components/Button";
 
 function App() {
     const [data, setData] = useState({});
@@ -12,11 +13,54 @@ function App() {
     const [weatherData, setWeatherData] = useState([]);
 
     const fetchWithLocation = (event) => {
+        console.log('fetchWithLocation');
         event.preventDefault();
 
-        const locationUrl = `${REACT_APP_API_URL}/weather/q?=`;
-        
-        // axios.get()
+        const locationUrl = `${process.env.REACT_APP_API_URL}/weather?q=${location}&units=${process.env.REACT_APP_UNITS}&appid=${process.env.REACT_APP_API_KEY}`;
+
+        axios.get(locationUrl)
+            .then((response) => {
+                console.log(response);
+                setData(response.data);
+                setLocation('');
+            })
+            .catch((error) => {
+                console.log(error);
+        });
+    };
+
+    const fetchWithGeoLocation = () => {
+        console.log('fetchWithGeoLocation');
+
+        if (!navigator.geolocation) return alert("Browser can't get location");
+
+        const getGeoLocation = new Promise((resolve, reject) => {
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => resolve(position),
+                (error) => reject(error)
+            );
+        });
+
+        getGeoLocation
+            .then((position) => {
+                setLat(() => position.coords.latitude);
+                setLon(() => position.coords.longitude);
+            })
+            .then(() => {
+
+                const geoLocationUrl = `${process.env.REACT_APP_API_URL}/weather?lat=${lat}&lon=${lon}&units=${process.env.REACT_APP_UNITS}&appid=${process.env.REACT_APP_API_KEY}`;
+
+                axios.get(geoLocationUrl)
+                    .then((response) => {
+                        console.log(response);
+                        setData(response.data);
+                        setLocation('');
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                });
+            });
     };
 
     return (
@@ -27,7 +71,7 @@ function App() {
                 onChange={(event) => setLocation(event.target.value)}
                 placeholder="Enter Location"
             />
-            <button>Geo Location</button>
+            <Button fetchWithGeoLocation={fetchWithGeoLocation}>Geo Location</Button>
             <div className="container">
                 <div className="top">
                     <div className="location">
